@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "react-poll-solution-client-side-solution",
+    "id": "a528e378-2bb3-4b4d-b7ad-b3ef0a5a2fc3",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true
+  },
+  "paths": {
+    "zippedPackage": "solution/react-poll-solution.sppkg"
+  }
+}
