@@ -32,6 +32,11 @@ export default class PollWebPart extends BaseClientSideWebPart<IPollWebPartProps
   ];
 
 
+  private _onConfigure() {
+    // Context of the web part
+    this.context.propertyPane.open();
+  }
+
   protected updateContentHandler = (value : string) => {
     this.properties.content = value;
   }
@@ -45,10 +50,10 @@ export default class PollWebPart extends BaseClientSideWebPart<IPollWebPartProps
         pollDescription: this.properties.pollDescription,
         pollResultType: this.properties.pollResultType,
         updateContent : this.updateContentHandler.bind(this),
-        content :  this.properties.content
+        content :  this.properties.content,
+        _onConfigure : this._onConfigure.bind(this)
       }
     );
-
     ReactDom.render(element, this.domElement);
   }
 
@@ -83,7 +88,7 @@ export default class PollWebPart extends BaseClientSideWebPart<IPollWebPartProps
               groupFields: [
                 PropertyPaneTextField('pollTitle', {
                   label: "Enter your Poll Title",
-                  onGetErrorMessage: this.handlePollTitle.bind(this)
+                  onGetErrorMessage : this.handlePollTitle.bind(this)
                 }),
                 PropertyPaneTextField("pollDescription", {
                   label: "Enter a Description for your Poll"

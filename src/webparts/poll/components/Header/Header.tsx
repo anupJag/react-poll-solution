@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Aux from '../../hoc/Auxilliary';
+import styles from './Header.module.scss';
 
 export interface IHeaderProps {
     PollTitle: string;
@@ -12,7 +13,7 @@ const header = (props: IHeaderProps) => {
             <header>
                 {props.PollTitle}
             </header>
-            {props.PollDescription}
+            <p className={styles.description}>{props.PollDescription}</p>
         </Aux>
     );
 };
