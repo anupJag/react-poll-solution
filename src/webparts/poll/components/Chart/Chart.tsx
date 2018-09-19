@@ -1,10 +1,13 @@
 import * as React from 'react';
 import { Bar, HorizontalBar, Line, Doughnut, Pie } from 'react-chartjs-2';
 import Aux from '../../hoc/Auxilliary';
+import Header from '../Header/Header';
 
 export interface IChartProps {
     chartType: string;
     chartData: {};
+    chartTitle : string;
+    chartDesc? : string;
 }
 
 export interface IChartState {
@@ -21,14 +24,14 @@ export default class Chart extends React.Component<IChartProps, IChartState> {
         this.state = {
             chartType: props.chartType,
             chartData: props.chartData
-        }
+        };
     }
 
     componentWillReceiveProps(nextProps : IChartProps){
         if(this.state.chartType != nextProps.chartType){
             this.setState({
                 chartType : nextProps.chartType
-            })
+            });
         }
     }
 
@@ -54,6 +57,7 @@ export default class Chart extends React.Component<IChartProps, IChartState> {
                 break;
             default:
                 chartToReturn = <HorizontalBar data={chartData} />;
+                break;
         }
 
         return chartToReturn;
@@ -62,11 +66,12 @@ export default class Chart extends React.Component<IChartProps, IChartState> {
 
 
     render(): React.ReactElement<IChartProps> {
-        const chart : JSX.Element = this.state.chartType && this.state.chartData ? this.chartToBeRendered() : <div />
+        const chart : JSX.Element = this.state.chartType && this.state.chartData ? this.chartToBeRendered() : <div />;
 
 
         return (
             <Aux>
+                <Header PollTitle={this.props.chartTitle} PollDescription={this.props.chartDesc}/>
                 {chart}
             </Aux>
         );

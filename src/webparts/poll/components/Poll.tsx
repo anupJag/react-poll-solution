@@ -8,6 +8,7 @@ import { DefaultButton, IButtonProps } from 'office-ui-fabric-react/lib/Button';
 import Chart from './Chart/Chart';
 import { Placeholder } from "@pnp/spfx-controls-react/lib/Placeholder";
 import Aux from '../hoc/Auxilliary';
+import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 
 export interface IPollState {
   options: string[];
@@ -16,6 +17,7 @@ export interface IPollState {
   isVotingDone: boolean;
   chartData: {};
   showResults: boolean;
+  showSpinner: boolean;
 }
 
 export default class Poll extends React.Component<IPollProps, IPollState> {
@@ -28,21 +30,25 @@ export default class Poll extends React.Component<IPollProps, IPollState> {
       isVotingDone: false,
       chartData: undefined,
       showResults: false,
+      showSpinner: false
     };
   }
 
   // tslint:disable-next-line:member-access
   componentWillReceiveProps(nextProps: IPollProps) {
-    let pollData = nextProps.pollDataCollection.map((el: IPollOption) => el.option);
 
-    if (!(isEqual(pollData, this.state.options)) || (this.props.pollTitle !== nextProps.pollTitle)) {
-      debugger;
-      this.setState({
-        options: nextProps.pollDataCollection && nextProps.pollDataCollection.length > 0 ? nextProps.pollDataCollection.map((el: IPollOption) => el.option) : undefined
-      }, () => {
-        this.updateResultSetAfterPropsUpdate();
-        this.props.updateContent(null);
-      });
+    if (nextProps.pollDataCollection) {
+      let pollData = nextProps.pollDataCollection.map((el: IPollOption) => el.option);
+
+      if (!(isEqual(pollData, this.state.options)) || (this.props.pollTitle !== nextProps.pollTitle)) {
+        debugger;
+        this.setState({
+          options: nextProps.pollDataCollection && nextProps.pollDataCollection.length > 0 ? nextProps.pollDataCollection.map((el: IPollOption) => el.option) : undefined
+        }, () => {
+          this.updateResultSetAfterPropsUpdate();
+          this.props.updateContent(null);
+        });
+      }
     }
   }
 
@@ -94,6 +100,7 @@ export default class Poll extends React.Component<IPollProps, IPollState> {
   }
 
   protected _onVoteClicked = async () => {
+
     let currentVoteStatus = this.state.results;
     const voteSelection = this.state.selectedVote;
     currentVoteStatus[voteSelection] = currentVoteStatus[voteSelection] + 1;
@@ -101,15 +108,17 @@ export default class Poll extends React.Component<IPollProps, IPollState> {
     this.setState({
       results: currentVoteStatus,
       isVotingDone: true,
+      showSpinner: true,
     }, () => { this.props.updateContent(JSON.stringify(this.state.results)); }
     );
 
     setTimeout(() => {
       this.setState((prevState: IPollState) => {
         return {
+          showSpinner: !prevState.showSpinner,
           showResults: !prevState.showResults
-        }
-      })
+        };
+      });
     }, 3000);
   }
 
@@ -139,27 +148,47 @@ export default class Poll extends React.Component<IPollProps, IPollState> {
     this.setState((prevState: IPollState) => {
       return {
         showResults: !prevState.showResults
-      }
-    })
+      };
+    });
   }
 
   public render(): React.ReactElement<IPollProps> {
 
+    const showSpinner: JSX.Element = this.state.showSpinner ?
+      <div className={styles.spinnerMainHolder}>
+        <div className={styles.spinnerHolder}>
+          <Spinner
+            size={SpinnerSize.large}
+            label="Thank You For Your Valuable Contribution"
+            style={{ zIndex: 100 }}
+          />
+        </div>
+      </div> : null;
+
     const choiceGroups: JSX.Element = this.state.results ?
       <ChoiceGroup options={this.getChoiceGroupOptions()} onChanged={this._onChange} disabled={this.state.isVotingDone}></ChoiceGroup> : <div />;
 
-    const getGraph: JSX.Element = this.state.results ? <Chart chartData={this.createChartData()} chartType={this.props.pollResultType} /> : <div />;
+    const getGraph: JSX.Element = this.state.results ?
+      <Chart
+        chartData={this.createChartData()}
+        chartType={this.props.pollResultType}
+        chartTitle={this.props.pollTitle}
+        chartDesc={this.props.pollDescription}
+      />
+      :
+      <div />;
 
     const renderPoll: JSX.Element = (this.props.pollTitle && (this.props.pollDataCollection && this.props.pollDataCollection.length > 0)) ?
       <Aux>
         <Header PollTitle={this.props.pollTitle} PollDescription={this.props.pollDescription} />
         {choiceGroups}
         <div>
-          <DefaultButton 
-          primary={true} text={"Vote"} 
-          onClick={this._onVoteClicked} 
-          disabled={this.state.selectedVote && this.state.isVotingDone} 
-          className={styles.voteNow} />
+          <DefaultButton
+            primary={true} text={"Vote"}
+            onClick={this._onVoteClicked}
+            disabled={this.state.isVotingDone ? true : false}
+            className={styles.voteNow}
+          />
         </div>
       </Aux>
       :
@@ -172,6 +201,7 @@ export default class Poll extends React.Component<IPollProps, IPollState> {
 
     return (
       <div className={styles.poll}>
+        {showSpinner}
         {
           this.state.showResults ? getGraph : renderPoll
         }
