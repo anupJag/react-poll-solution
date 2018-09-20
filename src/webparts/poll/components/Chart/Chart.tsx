@@ -27,6 +27,7 @@ export default class Chart extends React.Component<IChartProps, IChartState> {
         };
     }
 
+    // tslint:disable-next-line:member-access
     componentWillReceiveProps(nextProps : IChartProps){
         if(this.state.chartType != nextProps.chartType){
             this.setState({
@@ -65,7 +66,7 @@ export default class Chart extends React.Component<IChartProps, IChartState> {
     }
 
 
-    render(): React.ReactElement<IChartProps> {
+    public render(): React.ReactElement<IChartProps> {
         const chart : JSX.Element = this.state.chartType && this.state.chartData ? this.chartToBeRendered() : <div />;
 
 
